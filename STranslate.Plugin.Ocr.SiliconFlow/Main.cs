@@ -49,8 +49,12 @@ public partial class Main : ObservableObject, IOcrPlugin, ILlm
 
     public Control GetSettingUI()
     {
+        // 每次重新创建设置面板：宿主关闭设置窗口时 WPF 会清空 PasswordBox 内容，
+        // 缓存的 View 重用时绑定值未变化不会重新推送，导致 API Key 显示为空（数据仍在）。
+        // 新建 View 让绑定重新从 VM 拉值；同时刷新 VM 显示值兜底（防 PasswordChanged 曾写回空）。
         _viewModel ??= new SettingsViewModel(Context, Settings, this);
-        _settingUi ??= new SettingsView { DataContext = _viewModel };
+        _viewModel.RefreshDisplay();
+        _settingUi = new SettingsView { DataContext = _viewModel };
         return _settingUi;
     }
 

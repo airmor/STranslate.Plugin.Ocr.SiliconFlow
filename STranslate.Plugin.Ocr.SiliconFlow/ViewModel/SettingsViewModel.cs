@@ -232,6 +232,15 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
         }
     }
 
+    /// <summary>
+    /// 重新打开设置页时刷新显示值（兜底：防 PasswordBox 关窗清空曾把空串写回）
+    /// </summary>
+    public void RefreshDisplay()
+    {
+        ApiKey = _settings.ApiKey;
+        OnPropertyChanged(nameof(ApiKey));
+    }
+
     private void Save() => _context.SaveSettingStorage<Settings>();
 
     public void Dispose() { }
