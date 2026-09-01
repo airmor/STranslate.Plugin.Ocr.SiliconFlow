@@ -1,0 +1,4 @@
+{
+  "Name": "硅基流动 OCR",
+  "Description": "调用硅基流动免费模型（PaddleOCR-VL-1.5 / DeepSeek-OCR / Qwen3.5-4B）的 OCR 插件"
+}

@@ -1,0 +1,10 @@
+{
+  "PluginID": "632038cb7f6a4fd88100e5ee39eb65cf",
+  "Name": "SiliconFlow OCR",
+  "Description": "SiliconFlow free OCR plugin: PaddleOCR-VL-1.5 / DeepSeek-OCR / Qwen3.5-4B",
+  "Author": "airmor",
+  "Version": "1.0.0",
+  "Website": "https://github.com/airmor/STranslate.Plugin.Ocr.SiliconFlow",
+  "ExecuteFileName": "STranslate.Plugin.Ocr.SiliconFlow.dll",
+  "IconPath": "icon.png"
+}
