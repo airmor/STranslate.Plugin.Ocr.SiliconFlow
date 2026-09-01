@@ -66,7 +66,7 @@ public static class SiliconFlowClient
         var responseContent = parsedData?["choices"]?[0]?["message"]?["content"]?.ToString()
             ?? throw new InvalidOperationException($"No data\nRaw: {response}");
 
-        return adapter.ParseResponse(responseContent, request);
+        return adapter.ParseResponse(responseContent, request, settings);
     }
 
     /// <summary>从错误信息中移除 ApiKey，防止泄漏（参考 Bailian 插件 Redact 模式）</summary>

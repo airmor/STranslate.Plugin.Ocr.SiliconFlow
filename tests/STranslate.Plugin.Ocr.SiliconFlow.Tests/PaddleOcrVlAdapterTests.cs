@@ -40,7 +40,7 @@ public class PaddleOcrVlAdapterTests
             坏行只有七个<|LOC_1|><|LOC_2|><|LOC_3|><|LOC_4|><|LOC_5|><|LOC_6|><|LOC_7|>
             """;
 
-        var result = adapter.ParseResponse(content, MakeRequest(1000, 500));
+        var result = adapter.ParseResponse(content, MakeRequest(1000, 500), new Settings { PaddleMode = nameof(PaddleOcrMode.Spotting) });
 
         Assert.True(result.IsSuccess);
         var lines = result.Regions[0].Paragraphs[0].Lines;
@@ -57,7 +57,7 @@ public class PaddleOcrVlAdapterTests
 
         // 1000×500 图：x 换算 LOC 500→250px, y 换算 LOC 250→125px
         // 注意：LOC 值与像素同值时（500/1000×1000），实测若未换算会得 500——本断言验证换算确实发生
-        var result = adapter.ParseResponse(content, MakeRequest(500, 250));
+        var result = adapter.ParseResponse(content, MakeRequest(500, 250), new Settings { PaddleMode = nameof(PaddleOcrMode.Spotting) });
 
         var box = result.Regions[0].Paragraphs[0].Lines[0].BoxPoints;
         Assert.Equal(4, box.Count);
@@ -72,7 +72,7 @@ public class PaddleOcrVlAdapterTests
         var content = "text<|LOC_500|><|LOC_500|><|LOC_500|><|LOC_500|><|LOC_500|><|LOC_500|><|LOC_500|><|LOC_500|>";
 
         // 旧宿主场景：PixelWidth/Height = 0，坐标原样返回
-        var result = adapter.ParseResponse(content, MakeRequest(0, 0));
+        var result = adapter.ParseResponse(content, MakeRequest(0, 0), new Settings { PaddleMode = nameof(PaddleOcrMode.Spotting) });
 
         var box = result.Regions[0].Paragraphs[0].Lines[0].BoxPoints;
         Assert.Equal(500f, box[0].X, 2);
@@ -85,7 +85,7 @@ public class PaddleOcrVlAdapterTests
         // 9 个 token：前 8 个构成框，第 9 个被忽略
         var content = "text<|LOC_10|><|LOC_11|><|LOC_12|><|LOC_13|><|LOC_14|><|LOC_15|><|LOC_16|><|LOC_17|><|LOC_18|>";
 
-        var result = adapter.ParseResponse(content, MakeRequest(1000, 1000));
+        var result = adapter.ParseResponse(content, MakeRequest(1000, 1000), new Settings { PaddleMode = nameof(PaddleOcrMode.Spotting) });
 
         var box = result.Regions[0].Paragraphs[0].Lines[0].BoxPoints;
         Assert.Equal(4, box.Count);
@@ -99,7 +99,7 @@ public class PaddleOcrVlAdapterTests
         var adapter = new PaddleOcrVlAdapter();
         var content = "全是坏行\n没有坐标";
 
-        var result = adapter.ParseResponse(content, MakeRequest());
+        var result = adapter.ParseResponse(content, MakeRequest(), new Settings());
 
         Assert.True(result.IsSuccess);
         Assert.Equal(2, result.OcrContents.Count);
@@ -114,7 +114,7 @@ public class PaddleOcrVlAdapterTests
         Assert.False(adapter.SupportsCoordinates(settings));
 
         var content = "# 标题\n\n中英混排 text and 公式 $\\alpha + \\beta = \\pi$\n\n| a | b |";
-        var result = adapter.ParseResponse(content, MakeRequest());
+        var result = adapter.ParseResponse(content, MakeRequest(), new Settings());
 
         Assert.True(result.IsSuccess);
         Assert.Equal("# 标题", result.OcrContents[0].Text);
@@ -126,8 +126,8 @@ public class PaddleOcrVlAdapterTests
     public void ParseResponse_EmptyContent_Fails()
     {
         var adapter = new PaddleOcrVlAdapter();
-        Assert.False(adapter.ParseResponse("", MakeRequest()).IsSuccess);
-        Assert.False(adapter.ParseResponse("   \n  ", MakeRequest()).IsSuccess);
+        Assert.False(adapter.ParseResponse("", MakeRequest(), new Settings()).IsSuccess);
+        Assert.False(adapter.ParseResponse("   \n  ", MakeRequest(), new Settings()).IsSuccess);
     }
 
     [Fact]

@@ -3,65 +3,6 @@ using STranslate.Plugin.Ocr.SiliconFlow.Adapters;
 
 namespace STranslate.Plugin.Ocr.SiliconFlow.Tests;
 
-public class DeepSeekOcrAdapterTests
-{
-    private static readonly OcrRequest Request = new([0xFF], LangEnum.Auto, 100, 100);
-
-    [Theory]
-    [InlineData(nameof(DeepSeekOcrTemplate.Markdown), "<|grounding|>Convert the document to markdown.")]
-    [InlineData(nameof(DeepSeekOcrTemplate.Ocr), "<|grounding|>OCR this image.")]
-    [InlineData(nameof(DeepSeekOcrTemplate.FreeOcr), "Free OCR.")]
-    [InlineData(nameof(DeepSeekOcrTemplate.ParseFigure), "Parse the figure.")]
-    [InlineData(nameof(DeepSeekOcrTemplate.Describe), "Describe this image in detail.")]
-    public void BuildPromptText_OfficialTemplates(string template, string expected)
-    {
-        var adapter = new DeepSeekOcrAdapter();
-        var settings = new Settings { DeepSeekTemplate = template };
-
-        var prompt = adapter.BuildPromptText(settings);
-
-        Assert.Equal(expected, prompt);
-        // 硅基流动接口红线：不得包含 <image> 占位符
-        Assert.DoesNotContain("<image>", prompt);
-    }
-
-    [Fact]
-    public void BuildPromptText_UnknownTemplate_FallsBackToMarkdown()
-    {
-        var adapter = new DeepSeekOcrAdapter();
-        var settings = new Settings { DeepSeekTemplate = "bogus" };
-
-        Assert.Equal("<|grounding|>Convert the document to markdown.", adapter.BuildPromptText(settings));
-    }
-
-    [Fact]
-    public void ParseResponse_MarkdownPassthrough()
-    {
-        var adapter = new DeepSeekOcrAdapter();
-        var content = "# Doc\n\n公式 $\\int_0^1 x dx$";
-
-        var result = adapter.ParseResponse(content, Request);
-
-        Assert.True(result.IsSuccess);
-        Assert.Equal("# Doc", result.OcrContents[0].Text);
-        Assert.Equal("公式 $\\int_0^1 x dx$", result.OcrContents[2].Text);
-    }
-
-    [Fact]
-    public void ParseResponse_Empty_Fails()
-    {
-        var adapter = new DeepSeekOcrAdapter();
-        Assert.False(adapter.ParseResponse("", Request).IsSuccess);
-    }
-
-    [Fact]
-    public void SupportsCoordinates_AlwaysFalse()
-    {
-        var adapter = new DeepSeekOcrAdapter();
-        Assert.False(adapter.SupportsCoordinates(new Settings()));
-    }
-}
-
 public class QwenAdapterTests
 {
     private static readonly OcrRequest Request = new([0xFF], LangEnum.Auto, 100, 100);
@@ -89,7 +30,7 @@ public class QwenAdapterTests
     public void ParseResponse_TextLines()
     {
         var adapter = new QwenAdapter();
-        var result = adapter.ParseResponse("line1\nline2", Request);
+        var result = adapter.ParseResponse("line1\nline2", Request, new Settings());
 
         Assert.True(result.IsSuccess);
         Assert.Equal(2, result.OcrContents.Count);

@@ -26,12 +26,13 @@ public partial class PaddleOcrVlAdapter : IOcrModelAdapter
         _ => "OCR:"
     };
 
-    public OcrResult ParseResponse(string content, OcrRequest request)
+    public OcrResult ParseResponse(string content, OcrRequest request, Settings settings)
     {
         if (string.IsNullOrWhiteSpace(content))
             return new OcrResult().Fail("未检测到文字");
 
-        if (TryParseSpotting(content, request, out var spotting))
+        if (settings.PaddleMode == nameof(PaddleOcrMode.Spotting)
+            && TryParseSpotting(content, request, out var spotting))
             return spotting;
 
         // 其余模式：Markdown 按行透传（LaTeX 公式原样保留）

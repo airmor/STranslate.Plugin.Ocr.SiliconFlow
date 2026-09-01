@@ -114,5 +114,5 @@ static async Task<OcrResult> HttpRecognizeAsync(IOcrModelAdapter adapter, Settin
     var content = parsed?["choices"]?[0]?["message"]?["content"]?.ToString()
         ?? throw new InvalidOperationException($"No data\nRaw: {raw}");
 
-    return adapter.ParseResponse(content, request);
+    return adapter.ParseResponse(content, request, settings);
 }

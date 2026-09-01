@@ -18,8 +18,8 @@ public interface IOcrModelAdapter
     /// </summary>
     string BuildPromptText(Settings settings);
 
-    /// <summary>解析模型输出为 OcrResult</summary>
-    OcrResult ParseResponse(string content, OcrRequest request);
+    /// <summary>解析模型输出为 OcrResult（需按 Settings 判断当前模式/模板）</summary>
+    OcrResult ParseResponse(string content, OcrRequest request, Settings settings);
 
     /// <summary>当前配置下是否提供文字坐标（BoxPoints）</summary>
     bool SupportsCoordinates(Settings settings);

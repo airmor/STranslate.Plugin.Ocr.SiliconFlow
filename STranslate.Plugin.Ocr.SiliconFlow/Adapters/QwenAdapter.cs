@@ -18,7 +18,7 @@ public class QwenAdapter : IOcrModelAdapter
             : prompt;
     }
 
-    public OcrResult ParseResponse(string content, OcrRequest request)
+    public OcrResult ParseResponse(string content, OcrRequest request, Settings settings)
     {
         if (string.IsNullOrWhiteSpace(content))
             return new OcrResult().Fail("未检测到文字");
