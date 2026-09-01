@@ -65,11 +65,11 @@ public class DeepSeekOcrAdapterTests
 
         var first = result.Regions[0].Paragraphs[0];
         Assert.Equal("- 定义：对于有界数列 \\(\\{x_n\\}\\)，定义", first.Lines[0].Text);
-        // 四角框：左上(81,77) 右上(737,77) 右下(737,157) 左下(81,157)
-        Assert.Equal(81f, first.BoxPoints[0].X, 1);
-        Assert.Equal(77f, first.BoxPoints[0].Y, 1);
-        Assert.Equal(737f, first.BoxPoints[1].X, 1);
-        Assert.Equal(157f, first.BoxPoints[2].Y, 1);
+        // det 坐标为 0~1000 千分比：100×100 图上 81 千分比 → 8.1px
+        Assert.Equal(8.1f, first.BoxPoints[0].X, 1);
+        Assert.Equal(7.7f, first.BoxPoints[0].Y, 1);
+        Assert.Equal(73.7f, first.BoxPoints[1].X, 1);
+        Assert.Equal(15.7f, first.BoxPoints[2].Y, 1);
     }
 
     [Fact]

@@ -13,19 +13,37 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
     private readonly Settings _settings;
 
     /// <summary>
-    /// 内置 8×8 PNG 测试图（黑底 T 形图案，程序化生成确保校验和合法——
-    /// 曾用 1×1 图实测被硅基流动判定 broken PNG）
+    /// 内置 64×64 PNG 测试图（A 形图案，程序化生成确保校验和合法）。
+    /// 尺寸红线：DeepSeek-OCR 要求宽高均 &gt;28px（实测 8×8 报 code 20015）。
     /// </summary>
     private static readonly byte[] TestImage = Convert.FromBase64String(
-        "iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAIAAABLbSncAAAAG0lEQVR4nGP4jwMwQCkkQJwEXA7dKOpKoDkXALX7j3G63SEQAAAAAElFTkSuQmCC");
+        "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAA3ElEQVR4nO2WQQ7DIAwE8/9PU6mqenAqsDegBXX2SJi1J7nkaofnaocHAXcQcAcBdxBwB4HjBK7FQQABBBBAYGOB1dsLDnO+QLWkU1jGtxJQ8H0ERNwr8LzEKTCn5OHU6UEAAQQcAvenHTB5nt2nDIxeW/5w+Ci1TxlIfPdw3l9xR4Gf14aF9eXf+CKB/G/CvgLfy8nC6iYffKlAqVDE5XkIxEIRl+chEAtFXJ6HQCwUcXkeArFQxOV5CMRCEZfnIRALRVyeh0AsFPG/E9gtCLiDgDsIuIOAOwg0c16/r/8XAXtWJQAAAABJRU5ErkJggg==");
 
-    /// <summary>三模型选项（显示名 → 完整 ID）</summary>
+    /// <summary>三模型选项（显示名 → 完整 ID）+ 自定义项</summary>
     public ObservableCollection<ModelOption> Models { get; } =
     [
         new(OcrModelRegistry.Adapters[0].ModelId, OcrModelRegistry.Adapters[0].DisplayName + "（文档解析 SOTA·带坐标）"),
-        new(OcrModelRegistry.Adapters[1].ModelId, OcrModelRegistry.Adapters[1].DisplayName + "（grounding 文档转 MD）"),
-        new(OcrModelRegistry.Adapters[2].ModelId, OcrModelRegistry.Adapters[2].DisplayName + "（自由提示词）")
+        new(OcrModelRegistry.Adapters[1].ModelId, OcrModelRegistry.Adapters[1].DisplayName + "（grounding 文档转 MD·带坐标）"),
+        new(OcrModelRegistry.Adapters[2].ModelId, OcrModelRegistry.Adapters[2].DisplayName + "（自由提示词）"),
+        new(OcrModelRegistry.CustomModelId, "自定义模型（任意多模态 LLM）")
     ];
+
+    public bool IsCustomSelected => SelectedModel.Id == OcrModelRegistry.CustomModelId;
+
+    /// <summary>自定义多模态模型 ID（任意视觉 LLM，配合自由提示词使用）</summary>
+    public string CustomModel
+    {
+        get => _customModel;
+        set
+        {
+            if (SetProperty(ref _customModel, value))
+            {
+                _settings.CustomModel = value;
+                Save();
+            }
+        }
+    }
+    private string _customModel = string.Empty;
 
     public ObservableCollection<string> PaddleModes { get; } =
     [
@@ -52,6 +70,7 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
 
         ApiKey = _settings.ApiKey;
         _selectedModel = Models.FirstOrDefault(m => m.Id == _settings.Model.Trim()) ?? Models[0];
+        CustomModel = _settings.CustomModel;
         _paddleMode = PaddleModes.Contains(_settings.PaddleMode) ? _settings.PaddleMode : PaddleModes[0];
         _deepSeekTemplate = DeepSeekTemplates.Contains(_settings.DeepSeekTemplate) ? _settings.DeepSeekTemplate : DeepSeekTemplates[0];
         QwenPrompt = _settings.QwenPrompt;
@@ -93,6 +112,7 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
                 OnPropertyChanged(nameof(IsPaddleSelected));
                 OnPropertyChanged(nameof(IsDeepSeekSelected));
                 OnPropertyChanged(nameof(IsQwenSelected));
+                OnPropertyChanged(nameof(IsCustomSelected));
                 OnPropertyChanged(nameof(IsSpotting));
             }
         }
@@ -194,12 +214,15 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
         try
         {
             var adapter = OcrModelRegistry.Resolve(_settings);
-            var request = new OcrRequest(TestImage, LangEnum.Auto, 1, 1);
+            var request = new OcrRequest(TestImage, LangEnum.Auto, 64, 64);
             var result = await SiliconFlowClient.RecognizeAsync(_context, _settings, adapter, request, CancellationToken.None);
             if (!result.IsSuccess)
                 throw new InvalidOperationException(result.ErrorMessage);
 
-            ValidateResult = $"连接成功 · {adapter.DisplayName}";
+            var modelLabel = adapter is QwenAdapter q && _settings.Model.Trim() is OcrModelRegistry.CustomModelId
+                ? $"自定义 · {_settings.CustomModel.Trim()}"
+                : adapter.DisplayName;
+            ValidateResult = $"连接成功 · {modelLabel}";
         }
         catch (Exception exception)
         {

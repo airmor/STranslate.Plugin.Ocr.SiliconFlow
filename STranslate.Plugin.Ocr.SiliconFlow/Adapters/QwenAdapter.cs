@@ -1,14 +1,29 @@
+using System.Text.Json.Nodes;
+
 namespace STranslate.Plugin.Ocr.SiliconFlow.Adapters;
 
 /// <summary>
-/// Qwen3.5-4B 适配器。
-/// 通用多模态模型，无官方 OCR 协议——提示词是唯一允许用户编辑的。
+/// Qwen3.5-4B / 自定义多模态模型适配器。
+/// 通用视觉 LLM，无官方 OCR 协议——提示词是唯一允许用户编辑的。
 /// 输出当纯文本处理，坐标由宿主 Smart 分段推断。
 /// </summary>
 public class QwenAdapter : IOcrModelAdapter
 {
     public string ModelId => "Qwen/Qwen3.5-4B";
     public string DisplayName => "Qwen3.5-4B";
+
+    /// <summary>
+    /// 实际请求的模型 ID：Settings.Model 为 _custom 时用 CustomModel，
+    /// 否则用本适配器默认 ID（Qwen/Qwen3.5-4B）。
+    /// SiliconFlowClient 构建请求体时调用此方法而非 ModelId 属性。
+    /// </summary>
+    public string ResolveRequestModel(Settings settings)
+    {
+        if (settings.Model.Trim() is OcrModelRegistry.CustomModelId
+            && !string.IsNullOrWhiteSpace(settings.CustomModel))
+            return settings.CustomModel.Trim();
+        return ModelId;
+    }
 
     public string BuildPromptText(Settings settings)
     {

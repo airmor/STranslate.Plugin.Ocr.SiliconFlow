@@ -18,6 +18,9 @@ public interface IOcrModelAdapter
     /// </summary>
     string BuildPromptText(Settings settings);
 
+    /// <summary>实际请求的模型 ID（QwenAdapter 覆写以支持自定义模型）</summary>
+    string ResolveRequestModel(Settings settings) => ModelId;
+
     /// <summary>解析模型输出为 OcrResult（需按 Settings 判断当前模式/模板）</summary>
     OcrResult ParseResponse(string content, OcrRequest request, Settings settings);
 
@@ -25,9 +28,11 @@ public interface IOcrModelAdapter
     bool SupportsCoordinates(Settings settings);
 }
 
-/// <summary>按 Settings.Model 解析适配器；未知模型回退 PaddleOCR-VL</summary>
+/// <summary>按 Settings.Model 解析适配器；自定义模型走 Qwen 适配器；未知模型回退 PaddleOCR-VL</summary>
 public static class OcrModelRegistry
 {
+    public const string CustomModelId = "_custom";
+
     public static readonly IReadOnlyList<IOcrModelAdapter> Adapters =
     [
         new PaddleOcrVlAdapter(),
@@ -39,6 +44,6 @@ public static class OcrModelRegistry
     {
         var model = settings.Model.Trim();
         return Adapters.FirstOrDefault(a => string.Equals(a.ModelId, model, StringComparison.OrdinalIgnoreCase))
-            ?? Adapters[0];
+            ?? Adapters[2]; // 自定义/未知模型都走通用 Qwen 适配器（自由提示词 + 纯文本）
     }
 }

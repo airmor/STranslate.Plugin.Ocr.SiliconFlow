@@ -67,18 +67,26 @@
                 Visibility="{Binding IsDeepSeekSelected, Converter={StaticResource BooleanToVisibilityConverter}}" />
         </ui:SettingsCard>
 
-        <!--  Qwen 自由提示词（仅 Qwen 选中时可见；唯一可编辑的提示词）  -->
+        <!--  Qwen 自由提示词（Qwen / 自定义模型可见；唯一可编辑的提示词）  -->
         <ui:SettingsCard Description="{DynamicResource STranslate_Plugin_Ocr_SiliconFlow_QwenPrompt_Description}" Header="{DynamicResource STranslate_Plugin_Ocr_SiliconFlow_QwenPrompt}">
             <ui:SettingsCard.HeaderIcon>
                 <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.Chat_24_Regular}" />
             </ui:SettingsCard.HeaderIcon>
-            <TextBox
-                MinWidth="280"
-                MaxHeight="120"
-                AcceptsReturn="True"
-                Text="{Binding QwenPrompt, UpdateSourceTrigger=PropertyChanged}"
-                TextWrapping="Wrap"
-                Visibility="{Binding IsQwenSelected, Converter={StaticResource BooleanToVisibilityConverter}}" />
+            <ikw:SimpleStackPanel Orientation="Vertical" Spacing="8">
+                <TextBox
+                    MinWidth="280"
+                    MaxHeight="120"
+                    AcceptsReturn="True"
+                    Text="{Binding QwenPrompt, UpdateSourceTrigger=PropertyChanged}"
+                    TextWrapping="Wrap"
+                    Visibility="{Binding IsQwenSelected, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                <!--  自定义模型输入框（仅自定义模型选中时可见）  -->
+                <TextBox
+                    MinWidth="280"
+                    ui:ControlHelper.PlaceholderText="{DynamicResource STranslate_Plugin_Ocr_SiliconFlow_CustomModel_Placeholder}"
+                    Text="{Binding CustomModel, UpdateSourceTrigger=PropertyChanged}"
+                    Visibility="{Binding IsCustomSelected, Converter={StaticResource BooleanToVisibilityConverter}}" />
+            </ikw:SimpleStackPanel>
         </ui:SettingsCard>
 
         <!--  温度  -->

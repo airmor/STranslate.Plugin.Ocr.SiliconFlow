@@ -19,7 +19,8 @@
     <sys:String x:Key="STranslate_Plugin_Ocr_SiliconFlow_DeepSeekTemplate_Description">DeepSeek-OCR 官方提示词模板（协议固定，不可编辑）</sys:String>
 
     <sys:String x:Key="STranslate_Plugin_Ocr_SiliconFlow_QwenPrompt">提示词</sys:String>
-    <sys:String x:Key="STranslate_Plugin_Ocr_SiliconFlow_QwenPrompt_Description">仅 Qwen3.5-4B 可自由编辑</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_SiliconFlow_QwenPrompt_Description">Qwen3.5-4B / 自定义模型可自由编辑</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_SiliconFlow_CustomModel_Placeholder">如 Qwen/Qwen3-VL-8B-Instruct（任意多模态模型 ID）</sys:String>
 
     <sys:String x:Key="STranslate_Plugin_Ocr_SiliconFlow_Temperature">温度</sys:String>
     <sys:String x:Key="STranslate_Plugin_Ocr_SiliconFlow_Temperature_Description">OCR 建议保持 0</sys:String>

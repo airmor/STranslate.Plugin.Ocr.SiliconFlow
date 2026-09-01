@@ -61,9 +61,19 @@ public class OcrModelRegistryTests
     }
 
     [Fact]
-    public void Resolve_UnknownModel_FallsBackToPaddle()
+    public void Resolve_UnknownModel_FallsBackToQwen()
     {
-        Assert.IsType<PaddleOcrVlAdapter>(OcrModelRegistry.Resolve(new Settings { Model = "unknown/model" }));
+        Assert.IsType<QwenAdapter>(OcrModelRegistry.Resolve(new Settings { Model = "unknown/model" }));
+        Assert.IsType<QwenAdapter>(OcrModelRegistry.Resolve(new Settings { Model = OcrModelRegistry.CustomModelId }));
+    }
+
+    [Fact]
+    public void ResolveRequestModel_CustomModelUsesUserInput()
+    {
+        var settings = new Settings { Model = OcrModelRegistry.CustomModelId, CustomModel = " Qwen/Qwen3-VL-8B-Instruct " };
+        Assert.Equal("Qwen/Qwen3-VL-8B-Instruct", new QwenAdapter().ResolveRequestModel(settings));
+        // 非自定义时用默认 ID
+        Assert.Equal("Qwen/Qwen3.5-4B", new QwenAdapter().ResolveRequestModel(new Settings()));
     }
 }
 

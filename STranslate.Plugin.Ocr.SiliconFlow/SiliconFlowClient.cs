@@ -26,7 +26,7 @@ public static class SiliconFlowClient
 
         var content = new
         {
-            model = adapter.ModelId,
+            model = adapter.ResolveRequestModel(settings),
             messages = new object[]
             {
                 new

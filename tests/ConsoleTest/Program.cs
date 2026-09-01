@@ -46,19 +46,23 @@ foreach (var (title, configure) in scenarios)
     try
     {
         var request = new OcrRequest(imageData, LangEnum.Auto, width, height);
-        var result = await HttpRecognizeAsync(adapter, settings, request);
+        // 先打印模型原始输出（诊断坐标格式用），再打印解析结果
+        var raw = await HttpRawAsync(adapter, settings, request);
+        Console.WriteLine($"  [原始输出] {raw.Replace("\n", "\n    ").Truncate(600)}");
+        Console.WriteLine();
 
+        var result = adapter.ParseResponse(raw, request, settings);
         if (!result.IsSuccess)
         {
             Console.WriteLine($"  ✗ {result.ErrorMessage}");
             continue;
         }
 
-        if (result.Regions.Count > 0)
+        if (result.OcrContents.Any(c => c.BoxPoints.Count > 0))
         {
-            var lines = result.Regions[0].Paragraphs[0].Lines;
-            Console.WriteLine($"  ✓ {lines.Count} 行（含坐标）");
-            foreach (var line in lines.Take(5))
+            var boxed = result.OcrContents.Where(c => c.BoxPoints.Count > 0).ToList();
+            Console.WriteLine($"  ✓ {boxed.Count} 行（含坐标）");
+            foreach (var line in boxed.Take(5))
             {
                 var box = line.BoxPoints.FirstOrDefault();
                 Console.WriteLine($"    [{box.X:F0},{box.Y:F0}] {line.Text}");
@@ -66,7 +70,7 @@ foreach (var (title, configure) in scenarios)
         }
         else
         {
-            Console.WriteLine($"  ✓ {result.OcrContents.Count} 行（纯文本）");
+            Console.WriteLine($"  ✓ {result.OcrContents.Count} 行（纯文本，无坐标）");
             foreach (var content in result.OcrContents.Take(8))
                 Console.WriteLine($"    {content.Text}");
         }
@@ -81,9 +85,9 @@ foreach (var (title, configure) in scenarios)
 return 0;
 
 // ConsoleTest 无法构造 IPluginContext，这里内联一份最小 HTTP 调用（逻辑与 SiliconFlowClient 一致）
-static async Task<OcrResult> HttpRecognizeAsync(IOcrModelAdapter adapter, Settings settings, OcrRequest request)
+static async Task<string> HttpRawAsync(IOcrModelAdapter adapter, Settings settings, OcrRequest request)
 {
-    using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(60) };
+    using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(120) };
     http.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", settings.ApiKey);
 
     var body = new
@@ -111,8 +115,12 @@ static async Task<OcrResult> HttpRecognizeAsync(IOcrModelAdapter adapter, Settin
     response.EnsureSuccessStatusCode();
 
     var parsed = JsonNode.Parse(raw);
-    var content = parsed?["choices"]?[0]?["message"]?["content"]?.ToString()
+    return parsed?["choices"]?[0]?["message"]?["content"]?.ToString()
         ?? throw new InvalidOperationException($"No data\nRaw: {raw}");
+}
 
-    return adapter.ParseResponse(content, request, settings);
+internal static class StringExt
+{
+    public static string Truncate(this string s, int max) =>
+        s.Length <= max ? s : s[..max] + "…";
 }

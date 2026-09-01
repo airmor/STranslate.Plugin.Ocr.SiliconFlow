@@ -43,8 +43,11 @@ public class Settings
 {
     public string ApiKey { get; set; } = string.Empty;
 
-    /// <summary>模型完整 ID：PaddlePaddle/PaddleOCR-VL-1.5 | deepseek-ai/DeepSeek-OCR | Qwen/Qwen3.5-4B</summary>
+    /// <summary>模型完整 ID：PaddlePaddle/PaddleOCR-VL-1.5 | deepseek-ai/DeepSeek-OCR | Qwen/Qwen3.5-4B | _custom</summary>
     public string Model { get; set; } = "PaddlePaddle/PaddleOCR-VL-1.5";
+
+    /// <summary>自定义多模态模型 ID（任意视觉 LLM，Qwen 适配器配合自由提示词使用）</summary>
+    public string CustomModel { get; set; } = string.Empty;
 
     /// <summary>PaddleOCR-VL 识别模式</summary>
     public string PaddleMode { get; set; } = nameof(PaddleOcrMode.Document);
