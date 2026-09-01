@@ -1,0 +1,19 @@
+# STranslate.Plugin.Ocr.SiliconFlow .gitignore
+
+## Visual Studio / Rider
+.vs/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## 编译产物
+bin/
+obj/
+.artifacts/
+*.spkg
+
+## 测试
+TestResults/
+tests/ConsoleTest/images/
