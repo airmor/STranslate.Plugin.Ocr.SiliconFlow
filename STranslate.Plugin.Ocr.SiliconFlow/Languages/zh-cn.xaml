@@ -1,6 +1,36 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
     <sys:String x:Key="STranslate_Plugin_Ocr_SiliconFlow_Name">硅基流动 OCR</sys:String>
     <sys:String x:Key="STranslate_Plugin_Ocr_SiliconFlow_Description">调用硅基流动免费模型（PaddleOCR-VL-1.5 / DeepSeek-OCR / Qwen3.5-4B）的 OCR 插件</sys:String>
+
+    <sys:String x:Key="STranslate_Plugin_Ocr_SiliconFlow_ApiKey">API Key</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_SiliconFlow_ApiKey_Description">硅基流动控制台创建，Bearer 鉴权</sys:String>
+
+    <sys:String x:Key="STranslate_Plugin_Ocr_SiliconFlow_Model">模型</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_SiliconFlow_Model_Description">三个模型均免费</sys:String>
+
+    <sys:String x:Key="STranslate_Plugin_Ocr_SiliconFlow_PaddleMode">识别模式</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_SiliconFlow_PaddleMode_Description">PaddleOCR-VL 官方模式（协议固定，不可编辑）</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_SiliconFlow_Spotting_Tip">Spotting 模式输出文字坐标，支持图片翻译选区高亮</sys:String>
+
+    <sys:String x:Key="STranslate_Plugin_Ocr_SiliconFlow_DeepSeekTemplate">官方模板</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_SiliconFlow_DeepSeekTemplate_Description">DeepSeek-OCR 官方提示词模板（协议固定，不可编辑）</sys:String>
+
+    <sys:String x:Key="STranslate_Plugin_Ocr_SiliconFlow_QwenPrompt">提示词</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_SiliconFlow_QwenPrompt_Description">仅 Qwen3.5-4B 可自由编辑</sys:String>
+
+    <sys:String x:Key="STranslate_Plugin_Ocr_SiliconFlow_Temperature">温度</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_SiliconFlow_Temperature_Description">OCR 建议保持 0</sys:String>
+
+    <sys:String x:Key="STranslate_Plugin_Ocr_SiliconFlow_MaxTokens">最大 Tokens</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_SiliconFlow_MaxTokens_Description">单次输出上限</sys:String>
+
+    <sys:String x:Key="STranslate_Plugin_Ocr_SiliconFlow_Timeout">超时（秒）</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_SiliconFlow_Timeout_Description">请求超时时间，5~300</sys:String>
+
+    <sys:String x:Key="STranslate_Plugin_Ocr_SiliconFlow_Validate">测试连接</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Ocr_SiliconFlow_Validate_Description">发送内置测试图验证当前配置</sys:String>
+
 </ResourceDictionary>
