@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net10.0-windows</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <LangVersion>preview</LangVersion>
+        <EnableWindowsTargeting>true</EnableWindowsTargeting>
+        <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\STranslate.Plugin.Ocr.SiliconFlow\STranslate.Plugin.Ocr.SiliconFlow.csproj" />
+    </ItemGroup>
+
+</Project>
