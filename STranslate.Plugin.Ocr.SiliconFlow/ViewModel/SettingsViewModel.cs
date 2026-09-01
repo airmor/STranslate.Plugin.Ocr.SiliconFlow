@@ -12,9 +12,12 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
     private readonly IPluginContext _context;
     private readonly Settings _settings;
 
-    /// <summary>内置 1×1 测试图（Bailian 插件同款）</summary>
+    /// <summary>
+    /// 内置 8×8 PNG 测试图（黑底 T 形图案，程序化生成确保校验和合法——
+    /// 曾用 1×1 图实测被硅基流动判定 broken PNG）
+    /// </summary>
     private static readonly byte[] TestImage = Convert.FromBase64String(
-        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9WlPpFcAAAAASUVORK5CYII=");
+        "iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAIAAABLbSncAAAAG0lEQVR4nGP4jwMwQCkkQJwEXA7dKOpKoDkXALX7j3G63SEQAAAAAElFTkSuQmCC");
 
     /// <summary>三模型选项（显示名 → 完整 ID）</summary>
     public ObservableCollection<ModelOption> Models { get; } =

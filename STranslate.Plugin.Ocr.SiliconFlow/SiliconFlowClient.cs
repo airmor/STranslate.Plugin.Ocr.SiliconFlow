@@ -1,3 +1,4 @@
+using System.IO;
 using System.Text.Json.Nodes;
 using STranslate.Plugin.Ocr.SiliconFlow.Adapters;
 
@@ -19,6 +20,10 @@ public static class SiliconFlowClient
     {
         var url = UrlHelper.BuildFinalUrl(BaseUrl, "/v1/chat/completions", UrlPathMatchRule.Strict);
 
+        // 硅基流动只接受 png/jpg/jpeg/webp/gif（code 20015）
+        // 截图场景常传入 bmp 或坏的 png，统一转码为合法 png
+        var (imageData, mime) = ImageTranscoder.ToPng(request.ImageData);
+
         var content = new
         {
             model = adapter.ModelId,
@@ -34,7 +39,7 @@ public static class SiliconFlowClient
                             type = "image_url",
                             image_url = new
                             {
-                                url = $"data:image/png;base64,{Convert.ToBase64String(request.ImageData)}"
+                                url = $"data:{mime};base64,{Convert.ToBase64String(imageData)}"
                             }
                         },
                         new
@@ -75,5 +80,29 @@ public static class SiliconFlowClient
         if (string.IsNullOrEmpty(apiKey) || string.IsNullOrEmpty(message))
             return message;
         return message.Replace(apiKey, "***");
+    }
+}
+
+/// <summary>
+/// 图片转码：保证发给硅基流动的是合法 PNG。
+/// 不引入依赖，用 System.Drawing（Windows 自带）做 bmp→png 与 png 修复重编码。
+/// </summary>
+internal static class ImageTranscoder
+{
+    public static (byte[] Data, string Mime) ToPng(byte[] image)
+    {
+        try
+        {
+            using var ms = new MemoryStream(image);
+            using var bitmap = new System.Drawing.Bitmap(ms);
+            using var outMs = new MemoryStream();
+            bitmap.Save(outMs, System.Drawing.Imaging.ImageFormat.Png);
+            return (outMs.ToArray(), "image/png");
+        }
+        catch (Exception)
+        {
+            // 解码失败：原样返回（服务端会给出具体报错）
+            return (image, "image/png");
+        }
     }
 }

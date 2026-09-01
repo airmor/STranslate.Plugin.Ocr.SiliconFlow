@@ -58,6 +58,11 @@ public class DeepSeekOcrAdapterTests
         Assert.True(result.IsSuccess);
         Assert.Equal(3, result.Regions[0].Paragraphs.Count);
 
+        // OCR 窗口划选定位依赖 OcrContents 扁平列表（每项带 BoxPoints）——双填断言
+        Assert.Equal(3, result.OcrContents.Count);
+        Assert.Equal("- 定义：对于有界数列 \\(\\{x_n\\}\\)，定义", result.OcrContents[0].Text);
+        Assert.Equal(4, result.OcrContents[0].BoxPoints.Count);
+
         var first = result.Regions[0].Paragraphs[0];
         Assert.Equal("- 定义：对于有界数列 \\(\\{x_n\\}\\)，定义", first.Lines[0].Text);
         // 四角框：左上(81,77) 右上(737,77) 右下(737,157) 左下(81,157)

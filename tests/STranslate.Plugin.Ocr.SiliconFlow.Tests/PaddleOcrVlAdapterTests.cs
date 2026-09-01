@@ -47,6 +47,11 @@ public class PaddleOcrVlAdapterTests
         Assert.Equal(2, lines.Count);
         Assert.Equal("你好世界", lines[0].Text);
         Assert.Equal("$E=mc^2$", lines[1].Text);
+
+        // OCR 窗口划选定位依赖 OcrContents 扁平列表（每项带 BoxPoints）——双填断言
+        Assert.Equal(2, result.OcrContents.Count);
+        Assert.Equal("你好世界", result.OcrContents[0].Text);
+        Assert.Equal(4, result.OcrContents[0].BoxPoints.Count);
     }
 
     [Fact]

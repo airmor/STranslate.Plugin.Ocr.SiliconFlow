@@ -43,7 +43,9 @@ public partial class PaddleOcrVlAdapter : IOcrModelAdapter
         settings.PaddleMode == nameof(PaddleOcrMode.Spotting);
 
     /// <summary>
-    /// Spotting 模式：解析逐行 LOC token 为带坐标的 Regions 结构。
+    /// Spotting 模式：解析逐行 LOC token 为带坐标的 OcrResult。
+    /// 同时填充 OcrContents（扁平，宿主 OCR 窗口鼠标划选定位依赖此字段）
+    /// 和 Regions（结构化，图片翻译分段依赖此字段）——与官方 Baidu 插件一致的双填模式。
     /// 有效行需 ≥8 个 LOC token；不足或文本为空的行跳过。
     /// </summary>
     private static bool TryParseSpotting(string content, OcrRequest request, out OcrResult result)
@@ -75,11 +77,13 @@ public partial class PaddleOcrVlAdapter : IOcrModelAdapter
                 new(coords[6], coords[7])
             };
 
-            paragraph.Lines.Add(new OcrContent
+            var ocrContent = new OcrContent
             {
                 Text = text,
                 BoxPoints = DenormalizeCoords(boxPoints, request)
-            });
+            };
+            paragraph.Lines.Add(ocrContent);
+            result.OcrContents.Add(ocrContent);
         }
 
         if (paragraph.Lines.Count == 0)

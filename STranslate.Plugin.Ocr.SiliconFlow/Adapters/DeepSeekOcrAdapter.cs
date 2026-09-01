@@ -52,6 +52,8 @@ public partial class DeepSeekOcrAdapter : IOcrModelAdapter
     /// <summary>
     /// 解析 grounding 输出：&lt;|det|&gt;[[x1,y1,x2,y2]]&lt;|/det|&gt; 开启一个块，
     /// 随后的非空文本行属于该块；坐标为像素（左上+右下 → 四角框）。
+    /// 同时填充 OcrContents（扁平，宿主 OCR 窗口划选定位依赖）和
+    /// Regions（结构化，图片翻译依赖）——官方 Baidu 插件同款双填模式。
     /// 无任何 det 块时返回 false（回退纯文本）。
     /// </summary>
     private static bool TryParseDetBoxes(string content, out OcrResult result)
@@ -75,32 +77,57 @@ public partial class DeepSeekOcrAdapter : IOcrModelAdapter
                 var x2 = float.Parse(match.Groups[3].Value);
                 var y2 = float.Parse(match.Groups[4].Value);
 
-                paragraph = new OcrParagraph
+                var boxPoints = new List<BoxPoint>
                 {
-                    BoxPoints =
-                    [
-                        new BoxPoint(x1, y1),
-                        new BoxPoint(x2, y1),
-                        new BoxPoint(x2, y2),
-                        new BoxPoint(x1, y2)
-                    ]
+                    new(x1, y1),
+                    new(x2, y1),
+                    new(x2, y2),
+                    new(x1, y2)
                 };
+
+                paragraph = new OcrParagraph { BoxPoints = boxPoints };
                 region.Paragraphs.Add(paragraph);
                 continue;
             }
 
-            // det 块后的文本行（去掉 <|ref|> 包裹的占位词）
+            // det 块后的文本行（去掉 <|ref|> 包裹的占位词），继承所在段落框
             var text = trimmed.Replace("<|ref|>", "").Replace("<|/ref|>", "").Trim();
             if (string.IsNullOrEmpty(text) || paragraph is null) continue;
 
-            paragraph.Lines.Add(new OcrContent { Text = text });
+            var ocrContent = new OcrContent
+            {
+                Text = text,
+                BoxPoints = paragraph.BoxPoints
+            };
+            paragraph.Lines.Add(ocrContent);
+            result.OcrContents.Add(ocrContent);
         }
 
         var hasLines = region.Paragraphs.Any(p => p.Lines.Count > 0);
         if (!hasLines)
             return false;
 
+        region.BoxPoints = CreateUnionBoxPoints(region.Paragraphs.Select(p => p.BoxPoints));
         result.Regions.Add(region);
         return true;
+    }
+
+    private static List<BoxPoint> CreateUnionBoxPoints(IEnumerable<IReadOnlyList<BoxPoint>> groups)
+    {
+        var valid = groups.Where(g => g.Count > 0).ToList();
+        if (valid.Count == 0) return [];
+
+        float minX = valid.Min(g => g.Min(p => p.X));
+        float minY = valid.Min(g => g.Min(p => p.Y));
+        float maxX = valid.Max(g => g.Max(p => p.X));
+        float maxY = valid.Max(g => g.Max(p => p.Y));
+
+        return
+        [
+            new BoxPoint(minX, minY),
+            new BoxPoint(maxX, minY),
+            new BoxPoint(maxX, maxY),
+            new BoxPoint(minX, maxY)
+        ];
     }
 }
