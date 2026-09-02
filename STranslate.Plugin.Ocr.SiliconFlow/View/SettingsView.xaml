@@ -89,6 +89,28 @@
             </ikw:SimpleStackPanel>
         </ui:SettingsCard>
 
+        <!--  表格输出格式（模型输出 HTML 表格时转换的目标格式）  -->
+        <ui:SettingsCard Description="{DynamicResource STranslate_Plugin_Ocr_SiliconFlow_TableFormat_Description}" Header="{DynamicResource STranslate_Plugin_Ocr_SiliconFlow_TableFormat}">
+            <ui:SettingsCard.HeaderIcon>
+                <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.Table_24_Regular}" />
+            </ui:SettingsCard.HeaderIcon>
+            <ComboBox
+                MinWidth="200"
+                ItemsSource="{Binding TableFormats}"
+                SelectedItem="{Binding TableFormat, Mode=TwoWay}" />
+        </ui:SettingsCard>
+
+        <!--  公式定界符  -->
+        <ui:SettingsCard Description="{DynamicResource STranslate_Plugin_Ocr_SiliconFlow_FormulaDelimiter_Description}" Header="{DynamicResource STranslate_Plugin_Ocr_SiliconFlow_FormulaDelimiter}">
+            <ui:SettingsCard.HeaderIcon>
+                <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.Calculator_24_Regular}" />
+            </ui:SettingsCard.HeaderIcon>
+            <ComboBox
+                MinWidth="200"
+                ItemsSource="{Binding FormulaDelimiters}"
+                SelectedItem="{Binding FormulaDelimiter, Mode=TwoWay}" />
+        </ui:SettingsCard>
+
         <!--  温度  -->
         <ui:SettingsCard Description="{DynamicResource STranslate_Plugin_Ocr_SiliconFlow_Temperature_Description}" Header="{DynamicResource STranslate_Plugin_Ocr_SiliconFlow_Temperature}">
             <ui:SettingsCard.HeaderIcon>

@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using STranslate.Plugin.Ocr.SiliconFlow;
 
 namespace STranslate.Plugin.Ocr.SiliconFlow.Adapters;
 
@@ -33,6 +34,10 @@ public partial class DeepSeekOcrAdapter : IOcrModelAdapter
     {
         if (string.IsNullOrWhiteSpace(content))
             return new OcrResult().Fail("未检测到文字");
+
+        content = OutputFormatter.Apply(content,
+            PaddleOcrVlAdapter.ParseTableFormat(settings),
+            PaddleOcrVlAdapter.ParseFormulaDelimiter(settings));
 
         // grounding 模板输出带 <|det|> 检测框 → 坐标结构
         if (IsGrounding(settings) && TryParseDetBoxes(content, request, out var boxed))

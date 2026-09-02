@@ -1,4 +1,5 @@
 using System.Text.Json.Nodes;
+using STranslate.Plugin.Ocr.SiliconFlow;
 
 namespace STranslate.Plugin.Ocr.SiliconFlow.Adapters;
 
@@ -37,6 +38,10 @@ public class QwenAdapter : IOcrModelAdapter
     {
         if (string.IsNullOrWhiteSpace(content))
             return new OcrResult().Fail("未检测到文字");
+
+        content = OutputFormatter.Apply(content,
+            PaddleOcrVlAdapter.ParseTableFormat(settings),
+            PaddleOcrVlAdapter.ParseFormulaDelimiter(settings));
 
         return PaddleOcrVlAdapter.ParsePlainText(content);
     }

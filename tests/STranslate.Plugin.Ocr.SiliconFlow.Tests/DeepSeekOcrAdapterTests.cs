@@ -59,12 +59,13 @@ public class DeepSeekOcrAdapterTests
         Assert.Equal(3, result.Regions[0].Paragraphs.Count);
 
         // OCR 窗口划选定位依赖 OcrContents 扁平列表（每项带 BoxPoints）——双填断言
+        // 默认公式定界符 Dollar：模型输出 \(…\) 被转换为 $…$
         Assert.Equal(3, result.OcrContents.Count);
-        Assert.Equal("- 定义：对于有界数列 \\(\\{x_n\\}\\)，定义", result.OcrContents[0].Text);
+        Assert.Equal("- 定义：对于有界数列 $\\{x_n\\}$，定义", result.OcrContents[0].Text);
         Assert.Equal(4, result.OcrContents[0].BoxPoints.Count);
 
         var first = result.Regions[0].Paragraphs[0];
-        Assert.Equal("- 定义：对于有界数列 \\(\\{x_n\\}\\)，定义", first.Lines[0].Text);
+        Assert.Equal("- 定义：对于有界数列 $\\{x_n\\}$，定义", first.Lines[0].Text);
         // det 坐标为 0~1000 千分比：100×100 图上 81 千分比 → 8.1px
         Assert.Equal(8.1f, first.BoxPoints[0].X, 1);
         Assert.Equal(7.7f, first.BoxPoints[0].Y, 1);

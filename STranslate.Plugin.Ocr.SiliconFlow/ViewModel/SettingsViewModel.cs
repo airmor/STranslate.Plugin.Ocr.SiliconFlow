@@ -62,6 +62,22 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
         nameof(DeepSeekOcrTemplate.Describe)
     ];
 
+    /// <summary>表格输出格式选项（HTML table → 目标格式）</summary>
+    public ObservableCollection<string> TableFormats { get; } =
+    [
+        nameof(OutputFormatter.TableFormat.Markdown),
+        nameof(OutputFormatter.TableFormat.Latex),
+        nameof(OutputFormatter.TableFormat.Tsv)
+    ];
+
+    /// <summary>公式定界符选项（\(\)\[\] ↔ $$$）</summary>
+    public ObservableCollection<string> FormulaDelimiters { get; } =
+    [
+        nameof(OutputFormatter.FormulaDelimiter.Dollar),
+        nameof(OutputFormatter.FormulaDelimiter.Latex),
+        nameof(OutputFormatter.FormulaDelimiter.Raw)
+    ];
+
     public SettingsViewModel(IPluginContext context, Settings settings, Main main)
     {
         _context = context;
@@ -73,6 +89,8 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
         CustomModel = _settings.CustomModel;
         _paddleMode = PaddleModes.Contains(_settings.PaddleMode) ? _settings.PaddleMode : PaddleModes[0];
         _deepSeekTemplate = DeepSeekTemplates.Contains(_settings.DeepSeekTemplate) ? _settings.DeepSeekTemplate : DeepSeekTemplates[0];
+        _tableFormat = TableFormats.Contains(_settings.TableFormat) ? _settings.TableFormat : TableFormats[0];
+        _formulaDelimiter = FormulaDelimiters.Contains(_settings.FormulaDelimiter) ? _settings.FormulaDelimiter : FormulaDelimiters[0];
         QwenPrompt = _settings.QwenPrompt;
         Temperature = _settings.Temperature;
         MaxTokens = _settings.MaxTokens;
@@ -147,6 +165,34 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
         }
     }
     private string _deepSeekTemplate = null!;
+
+    public string TableFormat
+    {
+        get => _tableFormat;
+        set
+        {
+            if (value != null && SetProperty(ref _tableFormat, value))
+            {
+                _settings.TableFormat = value;
+                Save();
+            }
+        }
+    }
+    private string _tableFormat = null!;
+
+    public string FormulaDelimiter
+    {
+        get => _formulaDelimiter;
+        set
+        {
+            if (value != null && SetProperty(ref _formulaDelimiter, value))
+            {
+                _settings.FormulaDelimiter = value;
+                Save();
+            }
+        }
+    }
+    private string _formulaDelimiter = null!;
 
     public string QwenPrompt
     {

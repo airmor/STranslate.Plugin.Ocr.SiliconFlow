@@ -1,5 +1,6 @@
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
+using STranslate.Plugin.Ocr.SiliconFlow;
 
 namespace STranslate.Plugin.Ocr.SiliconFlow.Adapters;
 
@@ -31,6 +32,8 @@ public partial class PaddleOcrVlAdapter : IOcrModelAdapter
         if (string.IsNullOrWhiteSpace(content))
             return new OcrResult().Fail("未检测到文字");
 
+        content = OutputFormatter.Apply(content, ParseTableFormat(settings), ParseFormulaDelimiter(settings));
+
         if (settings.PaddleMode == nameof(PaddleOcrMode.Spotting)
             && TryParseSpotting(content, request, out var spotting))
             return spotting;
@@ -38,6 +41,16 @@ public partial class PaddleOcrVlAdapter : IOcrModelAdapter
         // 其余模式：Markdown 按行透传（LaTeX 公式原样保留）
         return ParsePlainText(content);
     }
+
+    internal static OutputFormatter.TableFormat ParseTableFormat(Settings settings) =>
+        Enum.TryParse(settings.TableFormat, out OutputFormatter.TableFormat tableFormat)
+            ? tableFormat
+            : OutputFormatter.TableFormat.Markdown;
+
+    internal static OutputFormatter.FormulaDelimiter ParseFormulaDelimiter(Settings settings) =>
+        Enum.TryParse(settings.FormulaDelimiter, out OutputFormatter.FormulaDelimiter delimiter)
+            ? delimiter
+            : OutputFormatter.FormulaDelimiter.Dollar;
 
     public bool SupportsCoordinates(Settings settings) =>
         settings.PaddleMode == nameof(PaddleOcrMode.Spotting);

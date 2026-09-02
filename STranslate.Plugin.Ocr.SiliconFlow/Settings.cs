@@ -62,4 +62,10 @@ public class Settings
     public double Temperature { get; set; } = 0.0;
     public int MaxTokens { get; set; } = 4096;
     public int TimeoutSeconds { get; set; } = 30;
+
+    /// <summary>HTML 表格输出格式（模型输出 table 时转换的目标格式）</summary>
+    public string TableFormat { get; set; } = nameof(OutputFormatter.TableFormat.Markdown);
+
+    /// <summary>公式定界符：\( \) \[ \] ↔ $ $ $$ $$</summary>
+    public string FormulaDelimiter { get; set; } = nameof(OutputFormatter.FormulaDelimiter.Dollar);
 }
